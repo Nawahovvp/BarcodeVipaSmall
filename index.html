@@ -178,17 +178,14 @@
   <div id="app">
     <p style="text-align:center;">กำลังโหลดข้อมูล...</p>
   </div>
-
   <script>
     const sheetID = "1Fe39m1Zn788PT_f_of5DskZB44AJHcO93u8ABOwjECM";
     const sheetName = "Data_Serial";
     const url = `https://opensheet.elk.sh/${sheetID}/${sheetName}`;
-
     async function loadAndRender() {
       try {
         const response = await fetch(url);
         const data = await response.json();
-
         const cleanedData = data.map(row => ({
           Material: row['Material'] || '',
           QtyPrint: row['QtyPrint'] || '',
@@ -202,14 +199,11 @@
           Unit: row['Unit'] || '',
           แผนก: row['แผนก'] || ''
         }));
-
         // Ensure spinner is shown for at least 3 seconds
         const minLoadingTime = new Promise(resolve => setTimeout(resolve, 3000));
         await Promise.all([minLoadingTime, Promise.resolve()]);
-
         // Hide spinner
         document.getElementById('spinner').style.display = 'none';
-
         renderLabels(cleanedData);
       } catch (err) {
         document.getElementById('spinner').style.display = 'none';
@@ -217,17 +211,14 @@
         console.error(err);
       }
     }
-
     function renderLabels(data) {
       const app = document.getElementById('app');
       app.innerHTML = '<div class="container"></div>';
       const container = app.querySelector('.container');
-
       // Filter data to include only rows with non-empty Material and Serial = true
       const validData = data.filter(row => row.Material && row.Material.trim() !== '' && row.Serial === 'TRUE');
-      
+     
       validData.sort((a, b) => a.Material.localeCompare(b.Material));
-
       const expandedData = [];
       validData.forEach(row => {
         const qty = Math.max(1, row.จำนวน);
@@ -235,14 +226,11 @@
           expandedData.push({ ...row });
         }
       });
-
       for (let i = 0; i < expandedData.length; i += 2) {
         const sticker = document.createElement('div');
         sticker.className = 'sticker';
-
         const label1 = createLabel(expandedData[i]);
         sticker.appendChild(label1);
-
         if (i + 1 < expandedData.length) {
           const label2 = createLabel(expandedData[i + 1]);
           sticker.appendChild(label2);
@@ -252,64 +240,50 @@
           emptyLabel.innerHTML = '<div class="description">ไม่มีข้อมูล</div>';
           sticker.appendChild(emptyLabel);
         }
-
         container.appendChild(sticker);
       }
     }
-
     function createLabel(row) {
       const label = document.createElement('div');
       label.className = 'label';
-
       const rowDiv = document.createElement('div');
       rowDiv.className = 'row';
-
       const qrCanvas = document.createElement('canvas');
       qrCanvas.className = 'qr';
       rowDiv.appendChild(qrCanvas);
-
       const textContainer = document.createElement('div');
       textContainer.style.display = 'flex';
       textContainer.style.flexDirection = 'column';
-
       const materialDiv = document.createElement('div');
       materialDiv.className = 'material';
       materialDiv.textContent = row.Material;
       textContainer.appendChild(materialDiv);
-
       const technicianDiv = document.createElement('div');
       technicianDiv.className = 'technician';
       technicianDiv.textContent = row.ชื่อช่าง;
       textContainer.appendChild(technicianDiv);
-
       const departmentDiv = document.createElement('div');
       departmentDiv.className = 'department';
       departmentDiv.textContent = row.แผนก;
       textContainer.appendChild(departmentDiv);
-
       rowDiv.appendChild(textContainer);
       label.appendChild(rowDiv);
-
       const desc = document.createElement('div');
       desc.className = 'description';
       desc.textContent = row.Description;
       label.appendChild(desc);
-
       const loc = document.createElement('div');
       loc.className = 'location';
       loc.textContent = `Location: ${row.Storagebin}`;
       label.appendChild(loc);
-
       const now = new Date();
       const formattedDate = `${now.getFullYear().toString().slice(2)}${String(now.getMonth() + 1).padStart(2, '0')}${String(now.getDate()).padStart(2, '0')}${String(now.getHours()).padStart(2, '0')}${String(now.getMinutes()).padStart(2, '0')}`;
-
       const lot = document.createElement('div');
       lot.className = 'lot-line';
       lot.innerHTML = `
         <span>Lot: ${formattedDate} (${row.จำนวน}) ${row.Pack} ${row.Unit}</span>
       `;
       label.appendChild(lot);
-
       if (typeof QRCode !== 'undefined') {
         QRCode.toCanvas(qrCanvas, row.Material || 'N/A', {
           width: 50,
@@ -320,10 +294,8 @@
           if (err) console.error('QR Error:', err);
         });
       }
-
       return label;
     }
-
     loadAndRender();
   </script>
 </body>
